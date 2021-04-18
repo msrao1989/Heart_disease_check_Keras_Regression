@@ -14,6 +14,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
+from sklearn.metrics import accuracy_score
 
 
 # # Data Imports
@@ -22,15 +23,58 @@ from tensorflow.keras.layers.experimental import preprocessing
 
 
 column_names = ['age','sex','cp','trtbps','chol','fbs','restecg','thalachh','exng','oldpeak','slp','caa','thall','output']
-url='/Users/msr89/Documents/Python_datascience/TensorFlow/Deep_learning/Heart_Disease_pred/heart.csv'
+url='/Users/msr89/Documents/Python_datascience/TensorFlow/Deep_learning/Heart_Disease_pred/input_file/heart.csv'
 raw_dataset = pd.read_csv(url, names=column_names)
 dataset = raw_dataset.copy()
 dataset.describe()
 
 
-# # Split train and Test Data
+# # Data Visualization
 
 # In[3]:
+
+
+# Age vs Heart attack chances
+
+
+sns.distplot(dataset[dataset['output'] == 0]["age"], color='green',kde=True,) 
+sns.distplot(dataset[dataset['output'] == 1]["age"], color='red',kde=True)
+plt.title('Attack versus Age')
+plt.show()
+
+# heart attack gets distributed between age from 40 to 70
+
+
+# In[4]:
+
+
+# Cholestrol Vs Attack possibility
+
+sns.distplot(dataset[dataset['output'] == 0]["chol"], color='green',kde=True,) 
+sns.distplot(dataset[dataset['output'] == 1]["chol"], color='red',kde=True)
+plt.title('Attack versus Cholestrol distribution')
+plt.show()
+
+# the attack possiblities are for the people having cholestrol ranges from 150 to 350
+
+
+# In[20]:
+
+
+#Resting Blood Pressure and Attack possibilities
+
+
+sns.distplot(dataset[dataset['output'] == 0]["trtbps"], color='green',kde=True,) 
+sns.distplot(dataset[dataset['output'] == 1]["trtbps"], color='red',kde=True)
+plt.title('Attack versus Cholestrol distribution')
+plt.show()
+
+# occurence of heart attack is high for the resting bp between 100 and 160
+
+
+# # Split train and Test Data
+
+# In[6]:
 
 
 train_dataset = dataset.sample(frac=0.7, random_state=0)
@@ -45,9 +89,15 @@ test_labels = test_features.pop('age')
 print(train_labels.describe())
 
 
+# In[ ]:
+
+
+
+
+
 # # Normalize data
 
-# In[4]:
+# In[7]:
 
 
 normalizer = preprocessing.Normalization()
@@ -57,7 +107,7 @@ print(normalizer.mean.numpy())
 
 # # One variable Model
 
-# In[5]:
+# In[8]:
 
 
 agechk = np.array(train_features['trtbps'])
@@ -76,7 +126,7 @@ agechk_model.compile(
 # # Regression Linear
 # 
 
-# In[8]:
+# In[9]:
 
 
 history = agechk_model.fit(
@@ -103,7 +153,7 @@ def plot_loss(history):
 plot_loss(history)
 
 
-# In[41]:
+# In[10]:
 
 
 test_results = {}
@@ -119,7 +169,7 @@ y = agechk_model.predict(x)
 # # Predict age related blood pressure using Linear Regression Keras
 # 
 
-# In[44]:
+# In[11]:
 
 
 def plot_trtbps(x, y):
@@ -133,7 +183,7 @@ plot_trtbps(x,y)
 
 # # DNN Regression Keras With Single variable Age
 
-# In[32]:
+# In[12]:
 
 
 # Build a Model with Normalized input
@@ -151,7 +201,7 @@ def build_and_compile_model(norm):
   return model
 
 
-# In[37]:
+# In[13]:
 
 
 bpscheck = np.array(train_features['trtbps'])
@@ -160,7 +210,7 @@ bpscheck_normalizer.adapt(bpscheck)
 dnn_bpchk_model = build_and_compile_model(bpscheck_normalizer)
 
 
-# In[39]:
+# In[14]:
 
 
 history = dnn_bpchk_model.fit(
@@ -172,7 +222,7 @@ plot_loss(history)
 
 # # Predict and Plot DNN SIngle input model
 
-# In[45]:
+# In[15]:
 
 
 x_dnn = tf.linspace(0.0, 180, 181)
